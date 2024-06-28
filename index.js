@@ -15,28 +15,6 @@ app.use(morgan(':method :url :status :response-time ms - :postData'));
 app.use(cors());
 
 const Person = require('./models/person');
-/*let people = [
-  {
-    id: 1,
-    name: 'Arto Hellas',
-    number: '040-123456',
-  },
-  {
-    id: 2,
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-  },
-  {
-    id: 3,
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-  },
-  {
-    id: 4,
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-  },
-];*/
 
 app.get('/api/people', (request, response, next) => {
   Person.find({})
@@ -46,40 +24,31 @@ app.get('/api/people', (request, response, next) => {
     .catch((error) => next(error));
 });
 
-/*app.get('/info', (req, res) => {
-  const numberOfPeople = people.length;
-  const currentTime = new Date();
-
-  res.send(`
-    Phonebook has info for ${numberOfPeople} people<br>
-    ${currentTime}
-  `);
+app.get('/info', (request, response, next) => {
+  Person.countDocuments({})
+    .then((count) => {
+      const currentTime = new Date();
+      response.send(`Phonebook has info for ${count} people<br>${currentTime}
+      `);
+    })
+    .catch((error) => next(error));
 });
 
-app.get('/api/people/:id', (request, response) => {
-  const id = Number(request.params.id);
-  const person = people.find((person) => person.id === id);
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
-});*/
+app.get('/api/people/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((error) => next(error));
+});
 
 app.delete('/api/people/:id', (request, response, next) => {
-  console.log(request.params.id);
   Person.findByIdAndDelete(request.params.id)
     .then((result) => {
       response.status(204).end();
     })
     .catch((error) => next(error));
 });
-
-/*const generateId = () => {
-  const maxId =
-    people.length > 0 ? Math.max(...people.map((n) => Number(n.id))) : 0;
-  return maxId + 1;
-};*/
 
 app.post('/api/people', (request, response, next) => {
   const person = new Person({
